@@ -1,0 +1,81 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.AI;
+using UnityEngine.UI;
+
+public class navigation : MonoBehaviour
+{
+    
+
+    Animator animator;
+    public float speed = 5f;
+
+    int damping = 2;
+
+    //private Vector3 startLocation;
+    private Vector3 playerLocation;
+
+    GameObject player;
+    GameObject dog;
+
+    void Start()
+    {
+        animator = GetComponent<Animator>();
+        player = GameObject.FindWithTag("King");
+        dog = GameObject.FindWithTag("Wolf"); ;
+    }
+
+    // Update is called once per frame
+    void Update()
+    {
+
+        if (player != null)
+        {
+            playerLocation = player.transform.position;
+            checkMovement();
+        }
+
+
+    }
+
+
+    void checkMovement()
+    {
+
+        var distance = Vector3.Distance(transform.position, playerLocation);
+
+        if (distance > 2)
+        {
+
+            var lookPos = playerLocation - transform.position;
+            lookPos.y = 0;
+            var rotation = Quaternion.LookRotation(lookPos);
+            transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * damping);
+
+            transform.position = Vector3.MoveTowards(transform.position, playerLocation, speed * Time.deltaTime);
+            animator.SetBool("iswalking", true);
+        }
+        else
+        {
+            Quaternion playerDirection = player.transform.rotation;
+            transform.rotation = Quaternion.Slerp(transform.rotation, playerDirection, Time.deltaTime * damping);
+            animator.SetBool("iswalking", false);
+        }
+
+    }
+
+
+
+    void FixedUpdate()
+    {
+        var velocity = dog.GetComponent<Rigidbody>().velocity;
+
+        velocity.y = -10;
+
+
+    }
+
+
+
+}
